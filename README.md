@@ -9,6 +9,7 @@ Requirements
 ------------
 ### Platforms
 - CentOS 6.6
+- CentOS 7.1+ (as well as Redhat)
 
 ### Cookbooks
 - logrotate
@@ -107,7 +108,7 @@ Boolean)
 Usage
 -----
 Simply include the default recipe (stig::default) on an instance that needs to be hardened. May also want to include the auditd recipe (stig::auditd) to set a custom auditd configuration file
- 
+
 Authors
 -------
 - Author:: Ivan Suftin (<isuftin@usgs.gov>)
