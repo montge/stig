@@ -28,8 +28,9 @@ MAIL_DIR        /var/spool/mail
 #
 PASS_MAX_DAYS   <%= @pass_max_days %>
 PASS_MIN_DAYS   <%= @pass_min_days %>
-PASS_MIN_LEN    5
-PASS_WARN_AGE   <%= @pass_warn_age%>
+PASS_MIN_LEN    <%= @pass_min_len %>
+PASS_WARN_AGE   <%= @pass_warn_age %>
+FAIL_DELAY      <%= @fail_delay %>
 
 #
 # Min/max values for automatic uid selection in useradd

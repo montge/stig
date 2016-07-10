@@ -81,6 +81,13 @@ template "/etc/ssh/sshd_config" do
   notifies :restart, 'service[sshd]', :delayed
 end
 
+directory "/etc/ssh/authorized_keys" do
+  owner 'root'
+  group 'root'
+  mode '0755'
+  action :create
+end
+
 service 'sshd' do
   action :nothing
 end

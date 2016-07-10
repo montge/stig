@@ -21,17 +21,17 @@ default['stig']['auditd']['log_group'] = "root"
 default['stig']['auditd']['priority_boost'] = "4"
 default['stig']['auditd']['flush'] = "INCREMENTAL"
 default['stig']['auditd']['freq'] = "20"
-default['stig']['auditd']['num_logs'] = "5"
+default['stig']['auditd']['num_logs'] = "10"
 default['stig']['auditd']['disp_qos'] = "lossy"
 default['stig']['auditd']['dispatcher'] = "/sbin/audispd"
 default['stig']['auditd']['name_format'] = "NONE"
-default['stig']['auditd']['max_log_file'] = '25'
-default['stig']['auditd']['max_log_file_action'] = 'keep_logs'
+default['stig']['auditd']['max_log_file'] = '6'
+default['stig']['auditd']['max_log_file_action'] = 'ROTATE'
 default['stig']['auditd']['space_left'] = '75'
 default['stig']['auditd']['space_left_action'] = 'email'
 default['stig']['auditd']['action_mail_acct'] = 'root'
 default['stig']['auditd']['admin_space_left'] = "50"
-default['stig']['auditd']['admin_space_left_action'] = 'halt'
+default['stig']['auditd']['admin_space_left_action'] = 'email'
 default['stig']['auditd']['disk_full_action'] = "SUSPEND"
 default['stig']['auditd']['disk_error_action'] = "SUSPEND"
 default['stig']['auditd']['tcp_listen_queue'] = "5"
@@ -78,7 +78,20 @@ default['stig']['auditd']['rules'] = [
   "-a always,exit -F path=/bin/ping -F perm=x -F auid>=500 -F auid!=4294967295 -k privileged",
   "-a always,exit -F arch=b32 -S mount -F auid>=500 -F auid!=4294967295 -k export",
   "-a always,exit -F arch=b64 -S mount -F auid>=500 -F auid!=4294967295 -k export",
-  "-w /etc/sudoers -p wa -k actions"
+  "-w /etc/sudoers -p wa -k actions",
+  "-w /usr/sbin/insmod -p x -k modules",
+  "-w /usr/sbin/rmmod -p x -k modules",
+  "-w /usr/sbin/modprobe -p x -k modules",
+  "-a always,exit -F arch=b32 -S init_module -S delete_module -k modules",
+  "-a always,exit -F arch=b64 -S init_module -S delete_module -k modules",
+  "-a always,exit -F arch=b32 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete",
+  "-a always,exit -F arch=b64 -S rmdir -S unlink -S unlinkat -S rename -S renameat -F auid>=1000 -F auid!=4294967295 -k delete",
+  "-w /var/log/faillog -p wa -k logins",
+  "-w /var/log/lastlog -p wa -k logins",
+  "-w /var/log/tallylog -p -wa -k logins",
+  "-w /var/run/utmp -p wa -k session",
+  "-w /var/log/wtmp -p wa -k session",
+  "-w /var/log/btmp -p wa -k session"
 ]
 
 # Removing support for unneeded filesystem types
@@ -289,7 +302,7 @@ default['stig']['sshd_config']['permit_root_login'] = false
 default['stig']['sshd_config']['permit_empty_passwords'] = false
 
 # Set SSH PasswordAuthentication
-default['stig']['sshd_config']['password_authentication'] = true
+default['stig']['sshd_config']['password_authentication'] = false
 
 # Allow Users to Set Environment Options
 default['stig']['sshd_config']['allow_users_set_env_opts'] = false
@@ -339,13 +352,19 @@ default['stig']['sshd_config']['allow_groups'] = []
 default['stig']['system_auth']['pass_reuse_limit'] = 10
 
 # Set Password Expiration Days
-default['stig']['login_defs']['pass_max_days'] = 60
+default['stig']['login_defs']['pass_max_days'] = 90
 
 # Set Password Change Minimum Number of Days
-default['stig']['login_defs']['pass_min_days'] = 1
+default['stig']['login_defs']['pass_min_days'] = 2
 
 # Set Password Expiring Warning Days
-default['stig']['login_defs']['pass_warn_age'] = 15
+default['stig']['login_defs']['pass_warn_age'] = 14
+
+# Set Password Minimum Length - VA CRISP
+default["stig"]["login_defs"]["pass_min_len"] = 8
+
+# Set Fail Delay - VA CRISP
+default["stig"]["login_defs"]["fail_delay"] = 15
 
 # Set the login banner(s)
 default['stig']['login_banner']['motd'] = ""
@@ -354,3 +373,13 @@ default['stig']['login_banner']['issue_net'] = default['stig']['login_banner']['
 
 # The address the the mail transfer agent should listen on
 default["stig"]["mail_transfer_agent"]["inet_interfaces"] = "127.0.0.1"
+
+# Set Password Quality Settings
+default['stig']['pwquality']['difok'] = "15"
+default['stig']['pwquality']['minlen'] = "15"
+default['stig']['pwquality']['dcredit'] = "-1"
+default['stig']['pwquality']['ucredit'] = "-1"
+default['stig']['pwquality']['lcredit'] = "-1"
+default['stig']['pwquality']['ocredit'] = "-1"
+
+default['stig']['ntpd']['servers'] = ["ntp.va.gov"]

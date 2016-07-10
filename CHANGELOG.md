@@ -1,5 +1,7 @@
 ## Changelog
 ---------
+- 0.5.5
+-- [evan.montgomery-recht@va.gov] - Updated with VA CRISP related settings.
 
 - 0.5.4
 -- [isuftin@usgs.gov] - Fix an issue with auth-config being improperly written to for pass reuse limit
@@ -24,7 +26,7 @@
 -- [isuftin@usgs.gov] - Fix most foodcritic errors and warnings
 -- [isuftin@usgs.gov] - CIS 1.6.2 (Configure ExecShield) was removed in 2.0.0 of all CIS STIG. No longer testing for it
 -- [isuftin@usgs.gov] - Added updates to SSHD config to allow boolean for password authentication
--- [isuftin@usgs.gov] - Updated system auth recipe to be less destructive to /etc/pam.d/system-auth since that may be updated by authconfig 
+-- [isuftin@usgs.gov] - Updated system auth recipe to be less destructive to /etc/pam.d/system-auth since that may be updated by authconfig
 -- [isuftin@usgs.gov] - Fixed a few tests
 
 

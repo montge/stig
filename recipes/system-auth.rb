@@ -37,28 +37,62 @@ bash 'update_pass_reuse_in_pam_sysauth' do
       # Line was not in the file. Add it to the end
       echo 'password    sufficient    pam_unix.so try_first_pass use_authtok nullok sha512 shadow remember=#{pass_reuse_limit}' >> #{system_auth_file}
       fi
-      EOF
-      only_if { %w{rhel fedora centos}.include? platform }
-      not_if "grep -q 'remember=#{pass_reuse_limit}' #{system_auth_file}"
-    end
+    var_accounts_passwords_pam_faillock_deny="3"
+    AUTH_FILES[0]="/etc/pam.d/system-auth"
+    AUTH_FILES[1]="/etc/pam.d/password-auth"
 
-    file '/etc/pam.d/system-auth' do
-      action :delete
-      not_if 'test -L /etc/pam.d/system-auth'
-    end
+    for pamFile in "${AUTH_FILES[@]}"
+      do
 
-    link '/etc/pam.d/system-auth' do
-      to system_auth_file
-      mode '0644'
-    end
+        # pam_faillock.so already present?
+        if grep -q "^auth.*pam_faillock.so.*" $pamFile; then
 
-    template "/etc/pam.d/common-password" do
-      source "etc_pam.d_common-password.erb"
-      owner "root"
-      group "root"
-      mode 0644
-      variables(
-        :pass_reuse_limit => pass_reuse_limit
-      )
-      only_if { %w{debian ubuntu}.include? platform }
-    end
+          # pam_faillock.so present, deny directive present?
+          if grep -q "^auth.*[default=die].*pam_faillock.so.*authfail.*deny=" $pamFile; then
+
+            # both pam_faillock.so & deny present, just correct deny directive value
+            sed -i --follow-symlink "s/\(^auth.*required.*pam_faillock.so.*preauth.*silent.*\)\(deny *= *\).*/\1\2$var_accounts_passwords_pam_faillock_deny/" $pamFile
+            sed -i --follow-symlink "s/\(^auth.*[default=die].*pam_faillock.so.*authfail.*\)\(deny *= *\).*/\1\2$var_accounts_passwords_pam_faillock_deny/" $pamFile
+
+            # pam_faillock.so present, but deny directive not yet
+          else
+
+            # append correct deny value to appropriate places
+            sed -i --follow-symlink "/^auth.*required.*pam_faillock.so.*preauth.*silent.*/ s/$/ deny=$var_accounts_passwords_pam_faillock_deny/" $pamFile
+            sed -i --follow-symlink "/^auth.*[default=die].*pam_faillock.so.*authfail.*/ s/$/ deny=$var_accounts_passwords_pam_faillock_deny/" $pamFile
+            fi
+
+            # pam_faillock.so not present yet
+          else
+
+            # insert pam_faillock.so preauth & authfail rows with proper value of the 'deny' option
+            sed -i --follow-symlink "/^auth.*sufficient.*pam_unix.so.*/i auth        required      pam_faillock.so preauth silent deny=$var_accounts_passwords_pam_faillock_deny" $pamFile
+            sed -i --follow-symlink "/^auth.*sufficient.*pam_unix.so.*/a auth        [default=die] pam_faillock.so authfail deny=$var_accounts_passwords_pam_faillock_deny" $pamFile
+            sed -i --follow-symlink "/^account.*required.*pam_unix.so/i account     required      pam_faillock.so" $pamFile
+            fi
+            done
+            EOF
+            only_if { %w{rhel fedora centos}.include? platform }
+            not_if "grep -q 'remember=#{pass_reuse_limit}' #{system_auth_file}"
+          end
+
+          file '/etc/pam.d/system-auth' do
+            action :delete
+            not_if 'test -L /etc/pam.d/system-auth'
+          end
+
+          link '/etc/pam.d/system-auth' do
+            to system_auth_file
+            mode '0644'
+          end
+
+          template "/etc/pam.d/common-password" do
+            source "etc_pam.d_common-password.erb"
+            owner "root"
+            group "root"
+            mode 0644
+            variables(
+            :pass_reuse_limit => pass_reuse_limit
+            )
+            only_if { %w{debian ubuntu}.include? platform }
+          end

@@ -108,3 +108,18 @@ include_recipe "stig::audit_scripts"
 
 # CENTOS6: 6.5
 include_recipe "stig::su_restriction"
+
+# RHEL7: VA CRISP
+include_recipe "stig::pwquality"
+
+# RHEL7: VA CRISP 6.15.1.1
+include_recipe "stig::crond"
+
+# RHEL7: VA CRISP 6.15.3.1 Disable prelinking
+include_recipe "stig::prelink"
+
+# RHEL7: VA CRISP 6.15.9.1 Disable Modprobe Loading of USB Storage Driver
+include_recipe "stig::modprobe_usb_disable"
+
+# RHEL7: VA CRISP 6.15.10.1 Specify Network Time Protocol (NTP) Server
+include_recipe "stig::ntpd"

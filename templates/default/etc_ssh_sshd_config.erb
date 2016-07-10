@@ -65,8 +65,9 @@ MaxAuthTries <%= @max_auth_tries %>
 #MaxSessions 10
 
 #RSAAuthentication yes
-#PubkeyAuthentication yes
+PubkeyAuthentication yes
 #AuthorizedKeysFile	.ssh/authorized_keys
+AuthorizedKeysFile /etc/ssh/authorized_keys/%u
 #AuthorizedKeysCommand none
 #AuthorizedKeysCommandRunAs nobody
 
@@ -155,6 +156,5 @@ Subsystem	sftp	/usr/libexec/openssh/sftp-server
 #	AllowTcpForwarding no
 #	ForceCommand cvs server
 UseDNS no
-GSSAPIAuthentication no
 
 Ciphers <%= @ciphers %>

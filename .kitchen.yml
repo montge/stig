@@ -64,12 +64,12 @@ suites:
       - recipe[stig]
       - recipe[stig::auditd]
       - recipe[stig::auditd_rules]
-    attributes: {
-      "auditd" : {
-        "ruleset" : "stig"
-      }
-    }
+    attributes:
+      auditd:
+        ruleset: "stig"
+      stig:
+        sshd_config:
+          password_authentication: true
   - name: noauditd
     run_list:
       - recipe[stig::default]
-    
